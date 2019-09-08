@@ -15,6 +15,11 @@
 
 #define MIN_THREADS 10
 
+#include<chrono>
+#include<thread>
+
+
+
 
 template<class Type>
 class ThreadPool {
@@ -59,6 +64,8 @@ ThreadPool<Type>::ThreadPool(int32_t threads, std::function<void(Type &record)> 
 		while (!_shutdown) {
 			Type record;
 			_tasks.Pop(record, true);
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			_handler(record);
 		}
 	}

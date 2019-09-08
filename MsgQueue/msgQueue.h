@@ -27,15 +27,16 @@ public:
 	}
 
 	bool Pop(Type& record, bool isBlocked = true) {
+		std::unique_lock <std::mutex> lock(_mutex);
 		if (isBlocked) {
-			std::unique_lock <std::mutex> lock(_mutex);
+		
 			while (_queue.empty()) {
 				_condition.wait(lock);
 			}
 		}
 		else // If user wants to retrieve data in non-blocking mode
 		{
-			std::lock_guard <std::mutex> lock(_mutex);
+			
 			if (_queue.empty()) {
 				return false;
 			}

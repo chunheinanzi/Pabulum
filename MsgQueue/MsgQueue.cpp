@@ -4,19 +4,47 @@
 #include "pch.h"
 #include <iostream>
 #include "threadpool.h"
+#include <stdio.h>
+
 std::mutex mutex_;
 void fun(int index,std::string str) {
 	std::lock_guard <std::mutex> lock(mutex_);
 	std::cout << index << "job " <<str.c_str()<< std::endl;
 }
 
+
+typedef struct package {
+	int port_;
+	std::string ip_;
+
+
+}PACKAGE;
+
+void DealNetPackage(PACKAGE net_data) {
+	std::lock_guard <std::mutex> lock(mutex_);
+	std::cout<< "ip [" << net_data.ip_.c_str() << "] port [" << net_data.port_ <<"]"<< std::endl;
+
+}
+
+
 int main()
 {
     std::cout << "Hello World!\n"; 
-	ThreadPool<int> pool(5, std::bind(fun,1,"connect"));
-	pool.Submit(1);
-	pool.Submit(2);
-	while (1);
+
+	ThreadPool<PACKAGE> pool(5, DealNetPackage);
+	PACKAGE p;
+	p.ip_ = "127.0.0.1";
+	p.port_ = 80;
+
+	pool.Submit(p);
+	p.ip_ = "182.566.12.34";
+	pool.Submit(p);
+
+	for (size_t i = 0; i < 10000; i++)
+	{
+		pool.Submit(p);
+	}
+	system("pause");
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
